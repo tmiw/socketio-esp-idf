@@ -106,9 +106,9 @@ typedef void (*sio_on_event_fptr_t)(char* event_name, char* message);
 typedef struct {
     uint8_t eio_version;            /* EngineIO protocol version */
     uint8_t max_connect_retries;    /* Maximum connection retry attempts */
-    uint8_t retry_interval_ms;      /* Pause between retry attempts */
-    uint8_t ping_interval_ms;       /* Server-configured ping interval */
-    uint8_t ping_timeout_ms;        /* Server-configured ping wait-timeout */
+    uint32_t retry_interval_ms;      /* Pause between retry attempts */
+    uint32_t ping_interval_ms;       /* Server-configured ping interval */
+    uint32_t ping_timeout_ms;        /* Server-configured ping wait-timeout */
     sio_transport_t transport;      /* Preferred SocketIO transport */
     const char *server_address;     /* SocketIO server address with port */
     char *token;                    /* Random token for cache prevention */

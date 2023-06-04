@@ -112,7 +112,7 @@ esp_err_t socketio_http_handshake(sio_client_t* sio_client)
      * We are expecting an EngineIO encoded response body 
      * 
      */
-    util_extract_json(&response_buffer);
+    util_extract_json(response_buffer);
     ESP_LOGD(SIO_TAG, "Cleaned response buffer: %s", response_buffer);
     
     char eio_packet_type, eio_response_object[http_response_content_length_u - 1];
@@ -123,9 +123,9 @@ esp_err_t socketio_http_handshake(sio_client_t* sio_client)
 
     // The packet type is superseeded by a JSON object
     util_substr(
-        &eio_response_object,
-        &response_buffer,
-        &http_response_content_length_u,
+        eio_response_object,
+        response_buffer,
+        http_response_content_length_u,
         1,
         http_response_content_length
     );
@@ -141,7 +141,7 @@ esp_err_t socketio_http_handshake(sio_client_t* sio_client)
 
     ESP_LOGD(SIO_TAG, "Parsing JSON response...\n");
 
-    cJSON *body = cJSON_Parse(&eio_response_object);
+    cJSON *body = cJSON_Parse(eio_response_object);
     char *sid = cJSON_GetObjectItem(body, "sid")->valuestring;
 
     ESP_LOGD(SIO_TAG, "Server responded with SID: %s", sid);
@@ -188,7 +188,7 @@ esp_err_t socketio_http_handshake(sio_client_t* sio_client)
         // Begin long-polling
         xTaskCreate(&socketio_polling, "socketio_polling",  4096, (void *) sio_client, 6, NULL);
 
-        ESP_LOGI(SIO_TAG, "HTTP POST Status = %d, content_length = %d",
+        ESP_LOGI(SIO_TAG, "HTTP POST Status = %d, content_length = %lld",
                 esp_http_client_get_status_code(http_client),
                 esp_http_client_get_content_length(http_client));
     } else {
@@ -276,7 +276,7 @@ void socketio_polling(void* pvParameters)
         }
         size_t http_response_content_length_u = (uint) http_response_content_length;
 
-        socketio_parse_message_queue(sio_client, &response_buffer);
+        socketio_parse_message_queue(sio_client, response_buffer);
 
         // Clear the response buffer
         memset(response_buffer, 0, MAX_HTTP_RECV_BUFFER);
@@ -385,7 +385,7 @@ esp_err_t socketio_send_pong_http(sio_client_t* socketio_client)
         // Reset the SocketIO token to avoid caching
         socketio_client->token = util_mkrndstr(SIO_TOKEN_SIZE);
 
-        ESP_LOGI(SIO_TAG, "HTTP POST Status = %d, content_length = %d",
+        ESP_LOGI(SIO_TAG, "HTTP POST Status = %d, content_length = %lld",
                 esp_http_client_get_status_code(http_client),
                 esp_http_client_get_content_length(http_client));
     } else {
@@ -424,6 +424,9 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             ESP_LOGD(SIO_TAG, "HTTP_EVENT_ERROR");
+            break;
+        case HTTP_EVENT_REDIRECT:
+            ESP_LOGD(SIO_TAG, "HTTP_EVENT_REDIRECT");
             break;
         case HTTP_EVENT_ON_CONNECTED:
             ESP_LOGD(SIO_TAG, "HTTP_EVENT_ON_CONNECTED");

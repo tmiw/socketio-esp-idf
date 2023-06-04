@@ -37,7 +37,6 @@ extern "C" {
 #include "nvs_flash.h"
 #include "esp_http_client.h"
 #include "esp_http_server.h"
-#include "esp_websocket_client.h"
 #include "cJSON.h"
 
 #include "socketio_types.h"
